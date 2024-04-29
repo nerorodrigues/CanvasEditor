@@ -10,7 +10,8 @@ namespace CanvasEditor.Adorners
     internal class ResizeAdorner : Adorner
     {
         private const double Radius = 4.5;
-        private Rect? _elementSize;
+        private readonly Rect? _elementRect;
+        private Rect? _elementNewRect;
         private SolidColorBrush _brush = new SolidColorBrush(Colors.LightCyan);
         private Pen _pen = new Pen(Brushes.Blue, 0.5);
         private double _minHeight = 0;
@@ -18,7 +19,7 @@ namespace CanvasEditor.Adorners
 
         public ResizeAdorner(UIElement adornedElement) : base(adornedElement)
         {
-            _elementSize = new Rect(AdornedElement.DesiredSize);
+            _elementRect = new Rect(AdornedElement.DesiredSize);
             var frameworkElement = AdornedElement as FrameworkElement;
             if (frameworkElement != null)
             {
@@ -29,34 +30,49 @@ namespace CanvasEditor.Adorners
 
         protected override void OnRender(DrawingContext drawingContext)
         {
-            if (_elementSize.HasValue)
+            if (_elementNewRect.HasValue)
             {
                 _brush.Opacity = 0.8;
-                drawingContext.DrawRectangle(_brush, _pen, _elementSize.Value);
+                drawingContext.DrawRectangle(_brush, _pen, _elementNewRect.Value);
             }
         }
 
+        public Rect? GetElementRect() => _elementNewRect ?? _elementRect;
+
         public void ApplyOffset(Vector offset, AnchorDirection anchorDirection)
         {
-            if (_elementSize.HasValue)
+            if (_elementRect.HasValue)
             {
-                var height = _elementSize.Value.Height - offset.Y;
-                var width = _elementSize.Value.Width - offset.X;
-                var newRect = new Rect(new Size(width < _minWidth ? _minWidth : width, height < _minHeight ? _minHeight : height));
+                Double height = 0;
+                Double width = 0;
+                Double X = 0;
+                Double Y = 0;
+                
                 switch (anchorDirection)
                 {
                     case AnchorDirection.TopLeft:
-                        newRect.X = _elementSize.Value.X - offset.X;
-                        newRect.Y = _elementSize.Value.Y - offset.Y;
+                        height = _elementRect.Value.Height + offset.Y;
+                        width = _elementRect.Value.Width + offset.X;
+                        X = _elementRect.Value.X - offset.X;
+                        Y = _elementRect.Value.Y - offset.Y;
                         break;
                     case AnchorDirection.TopRight:
-                        newRect.Y = _elementSize.Value.Y - offset.Y;
+                        Y = _elementRect.Value.Y - offset.Y;
+                        height = _elementRect.Value.Height + offset.Y;
+                        width = _elementRect.Value.Width - offset.X;
                         break;
                     case AnchorDirection.BottomLeft:
-                        newRect.X = _elementSize.Value.Y - offset.Y;
+                        X = _elementRect.Value.X - offset.X;
+                        height = _elementRect.Value.Height - offset.Y;
+                        width = _elementRect.Value.Width + offset.X;
+                        break;
+                    case AnchorDirection.BottomRight:
+                        height = _elementRect.Value.Height - offset.Y;
+                        width = _elementRect.Value.Width - offset.X;
                         break;
                 }
-                _elementSize = newRect;
+                var newRect = new Rect(X, Y, width < _minWidth ? _minWidth : width, height < _minHeight ? _minHeight : height);
+                _elementNewRect = newRect;
             }
             InvalidateVisual();
         }

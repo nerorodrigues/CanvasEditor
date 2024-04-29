@@ -17,7 +17,7 @@
         </Grid.ColumnDefinitions>
         <components:CanvasEditor Grid.Row="1" Grid.Column="0" MouseLeftButtonDown="CanvasEditor_MouseLeftButtonDown" Background="Transparent">
             <Rectangle Width="100" Height="100" Canvas.Left="10" Canvas.Top="10" Fill="Blue" />
-            <components:EditorRetangle Canvas.Left="236" Canvas.Top="102"/>
+            <components:EditorRetangle Width="100" Height="100" Canvas.Left="236" Canvas.Top="102"/>
             <TextBlock Canvas.Left="100" Canvas.Top="200" Background="Pink">Valor</TextBlock>
         </components:CanvasEditor>
     </Grid>

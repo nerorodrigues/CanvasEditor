@@ -5,13 +5,15 @@ using CanvasEditor.Interfaces;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Shapes;
 using static CanvasEditor.Helpers.SelectedItemHelper;
 
 namespace CanvasEditor.Decorator
 {
-    [ExecutionPriority(-1)]
+    [ExecutionPriority(2)]
     internal class ResizeDecorator : DecoratorBase, IDecorator
     {
         private const double Radius = 10;
@@ -66,6 +68,19 @@ namespace CanvasEditor.Decorator
         {
             if (_anchorUnderTheMouse != null)
             {
+                var actualSize = _selectedItem.DesiredSize;
+                var newSize = _resizeAdorner.GetElementRect();
+                if(newSize.HasValue && !actualSize.Equals(newSize))
+                {
+                    var x = Canvas.GetLeft(_selectedItem) + newSize.Value.X;
+                    var y = Canvas.GetTop(_selectedItem) + newSize.Value.Y;
+                    _selectedItem.SetValue(Shape.HeightProperty, newSize.Value.Height);
+                    _selectedItem.SetValue(Shape.WidthProperty, newSize.Value.Width);
+                    _selectedItem.SetValue(Canvas.TopProperty, y);
+                    _selectedItem.SetValue(Canvas.LeftProperty, x);
+
+
+                }
                 DisableAdorner();
                 _startResizing = false;
                 e.Handled = true;
@@ -78,12 +93,10 @@ namespace CanvasEditor.Decorator
             {
                 if (!_startResizing)
                 {
-                    Debug.WriteLine("Searching for anchor.");
                     var position = Mouse.GetPosition(Parent);
                     var anchor = AnchorUnderTheMouse(position);
                     if (_anchorUnderTheMouse == null && anchor != null)
                     {
-                        Debug.WriteLine("Found.");
                         Mouse.Capture(Parent, CaptureMode.SubTree);
                     }
                     else if (_anchorUnderTheMouse != null && anchor == null)
@@ -94,7 +107,6 @@ namespace CanvasEditor.Decorator
                     if (_anchorUnderTheMouse != null)
                     {
                         SetCursor(_anchorUnderTheMouse);
-                        Debug.WriteLine("Mouse is over anchor");
                     }
                 }
                 else
@@ -138,22 +150,7 @@ namespace CanvasEditor.Decorator
         {
             if(_anchorUnderTheMouse == null)
                 return new Vector(0,0);
-            //switch (_anchorUnderTheMouse.AnchorDirection)
-            //{
-            //    case AnchorDirection.TopLeft:
-            //        return Rect()
-            //        break;
-            //    case AnchorDirection.TopRight:
-            //        break;
-            //    case AnchorDirection.BottomLeft:
-            //        break;
-            //    case AnchorDirection.BottomRight:
-            //        break;
-            //    default:
-            //        break;
-            //}
-            var offset = _anchorUnderTheMouse.Position - mousePosition;
-            return new Vector(offset.X, offset.Y);
+            return _anchorUnderTheMouse.Position - mousePosition;
         }
 
         private void DisableAdorner()

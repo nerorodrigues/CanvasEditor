@@ -13,8 +13,6 @@ namespace CanvasEditor.Components
         public EditorRetangle() {
             Fill = Brushes.Black;
         }
-        protected override Geometry DefiningGeometry => new RectangleGeometry(new Rect(new Size(100d, 100d)));
-
-
+        protected override Geometry DefiningGeometry => new RectangleGeometry(new Rect(DesiredSize));
     }
 }

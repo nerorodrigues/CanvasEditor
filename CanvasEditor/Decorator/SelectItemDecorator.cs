@@ -8,7 +8,7 @@ using System.Xml.Linq;
 
 namespace CanvasEditor.Decorator
 {
-    [ExecutionPriority(0)]
+    [ExecutionPriority(3)]
     public class SelectItemDecorator : DecoratorBase, IDecorator
     {
         private AdornerLayer? _adornerLayer;
